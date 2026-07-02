@@ -1,34 +1,75 @@
 const renderMovies = document.getElementById('render-movies')
 const moviesData = []
 const moviesHtml = []
-const savedMoviesData = []
-const savedMoviesHtml = []
-const watchListMoviesIds = []
+let savedMoviesData = getSavedMoviesData()
+let savedMoviesHtml = getSavedMoviesHtml()
+let watchListMoviesIds = getSavedWatchlistIds()
 
-localStorage.clear()
+// localStorage.clear()
 
 document.addEventListener('click',function(e){
+    if(e.target.classList.contains('addedToWatchlist')){
+        removeFromWatchlist(e.target.dataset.id)
+    }
+
     if (e.target.classList.contains('addToWatchlist')){
-        watchListMoviesIds.push(e.target.id)
-        storeMovieIdLocally(e.target.id)
-        pushSelectedMovieDetails(e.target.id)
-        storeMoviesArraysLocally()
+        pushDistinctWatchlistMovieIds(e.target.dataset.id)
+        changeWatchlistBtnImg(e.target.dataset.id)
     }
     if(e.target.id==='searchBtn'){
         getMovieSearch()
     }
 })
 
-function addClassToWatchlistBtnImg(){
-    const watchlistBtnImg = document.querySelector(".watchlist-btn-img")
-    watchlistBtnImg.classList.add("addedToWatchlist")
-    changeWatchlistBtnImg()
+function removeFromWatchlist(id){
+    watchListMoviesIds = watchListMoviesIds.filter(
+        (watchlistId)=>{
+            console.log("removed the id")
+            watchlistId!=id
+        }
+    )
+    let removeMovieIndex
+    console.log(savedMoviesData) 
+    savedMoviesData = savedMoviesData.filter(
+        (movie) => {
+            console.log(movie)
+            removeMovieIndex = savedMoviesData.indexOf(movie)
+            console.log(`removed the id ${id}`)
+            return movie.imdbId!=id
+        }
+    )
+    console.log(savedMoviesData)
+    console.log(removeMovieIndex)
 }
 
-function changeWatchlistBtnImg(){
-    const addedToWatchlistEl = document.querySelector(".addedToWatchlist")
-    addedToWatchlistEl.src = "images/remove-icon.png"
-    console.log("changed logo img")
+function isPresentInWatchlist(id){
+    if (watchListMoviesIds.includes(id)){
+        return true
+    }
+    return false
+}
+
+function pushDistinctWatchlistMovieIds(id){
+    console.log(id)
+    if(!watchListMoviesIds.includes(id)){
+        watchListMoviesIds.push(id)
+        pushSelectedMovieDetails(id)
+        storeMovieIdLocally(id)
+    }
+}
+
+// function addClassToWatchlistBtnImg(id){
+//     if (!isPresentInWatchlist(id)){
+//         imgEl.classList.toggle("addedToWatchlist")
+//     }
+// }
+
+function changeWatchlistBtnImg(id){
+    if (isPresentInWatchlist(id)){
+        const imgEl = document.getElementById(`img-${id}`)
+        imgEl.classList.add("addedToWatchlist")
+        imgEl.src = "images/remove-icon.png"
+    }
 }
 
 function pushSelectedMovieDetails(movieId){
@@ -41,22 +82,29 @@ function pushSelectedMovieDetails(movieId){
         }
     }
     savedMoviesHtml.push(moviesHtml[movieIndex])
-    addClassToWatchlistBtnImg()
+    storeMoviesArraysLocally()
 }
 
 function getSavedMoviesHtml(){
+    console.log("inside the saved movies html fn")
     if (localStorage.getItem("moviesHtml")){
-        return localStorage.getItem("moviesHtml")
+        return JSON.parse(localStorage.getItem("moviesHtml"))
+    }else{
+        return []
     }
 }
 
 function getSavedMoviesData(){
+    console.log("inside the saved movies data fn")
     if (localStorage.getItem("moviesData")){
-        return localStorage.getItem("moviesdata")
+        return JSON.parse(localStorage.getItem("moviesData"))
+    }else{
+        return []
     }
 }
 
 function getSavedWatchlistIds(){
+    console.log("inside the function saved ids")
     if (localStorage.getItem("watchlist-movie-ids")){
         return localStorage.getItem("watchlist-movie-ids").split(",")
     }else{
@@ -64,7 +112,8 @@ function getSavedWatchlistIds(){
     }
 }
 
-function storeMovieIdLocally(){
+function storeMovieIdLocally(id){
+    console.log(watchListMoviesIds)
     localStorage.setItem("watchlist-movie-ids",watchListMoviesIds)
 }
 
@@ -113,10 +162,15 @@ async function renderMovieDetails(movie){
                         ${data.Genre}
                     </p>
                     <div class='watchlistBtn-container'>
-                        <img class='watchlist-btn-img addToWatchlist' src='images/add-icon.png'>
+                        <img 
+                        class='watchlist-btn-img addToWatchlist' 
+                        src='images/add-icon.png'
+                        id='img-${data.imdbID}'
+                        data-id=${data.imdbID}>
                         <button 
                         class='addToWatchlist watchlistStyles'
-                        id=${data.imdbID}>
+                        id='btn-${data.imdbID}'
+                        data-id=${data.imdbID}>
                         Watchlist</button>
                     </div>
                 </div>
