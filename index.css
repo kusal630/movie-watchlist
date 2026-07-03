@@ -208,3 +208,37 @@ header{
     line-height:20px;
 }
 
+/* watchlist styles */
+
+.empty-watchlist{
+    height:571px;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.empty-watchlist-message{
+    color:#787878;
+    font-weight:bold;
+    font-size:1.125rem;
+    line-height:28.5px;
+    margin:0px;
+}
+
+.addMoviesLinkAndAddIcon{
+    display:flex;
+    justify-content:space-between;
+    width:190px;
+    margin-top:1.25em;
+}
+
+.addMoviesLink{
+    text-decoration:none;
+    color:#FFFFFF;
+    font-weight:bold;
+    line-height:20px;
+    font-size:0.875rem;
+}
+

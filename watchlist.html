@@ -14,11 +14,14 @@
         </header>
         <main>
             <section class="movies-section">
-                <div class="empty-watchlist">
+                <div class="empty-watchlist" id="empty-watchlist">
                     <p class="empty-watchlist-message">
-                        Your watchlist is looking a little empty
+                        Your watchlist is looking a little empty...
                     </p>
-                    <a href="seachpage.html">Let's add some movies!</a>
+                    <div class="addMoviesLinkAndAddIcon">
+                        <img class="go-to-searchpage" src="images/add-icon.png">
+                        <a class="addMoviesLink" href="seachpage.html">Let's add some movies!</a>
+                    </div>
                 </div>
                 <div id="watchlist-movies">
                     <!-- render movies -->

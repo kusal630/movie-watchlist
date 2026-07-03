@@ -1,28 +1,47 @@
-const moviesData = getMoviesData()
-const moviesHtml = getMoviesHtml()
+import {changeWatchlistBtnImg} from "./index.js"
+import { removeFromWatchlist } from "./index.js"
+
+// document.addEventListener("click",function(e){
+//     if (e.target.classList.contains("addedToWatchlist")){
+//         window.location.reload()
+//     }
+// })
+
+
+const savedMoviesData = getMoviesData()
+const savedMoviesHtml = getMoviesHtml()
+const savedWatchlistIdsArr=getMoviesData()
+
+const emptyWatchlistEl = document.querySelector("#empty-watchlist")
 
 renderToWatchlist()
+
+function checkWatchlistIsEmpty(){
+    if (savedWatchlistIdsArr.length){
+        emptyWatchlistEl.style.display="none"
+    }else{
+        emptyWatchlistEl.style.display="flex"
+    }   
+}
 
 function renderToWatchlist(){
     const watchListEl = document.getElementById('watchlist-movies')
     if (localStorage.getItem('watchlist-movie-ids'))
     {
-        const getWatchlistIds=localStorage.getItem('watchlist-movie-ids').split(',')
-        const changeIdsArrayToObject = new Set(getWatchlistIds)
-        const savedWatchlistIdsArr = [...changeIdsArrayToObject]
         const watchListMoviesHtml = []
         for (let id of savedWatchlistIdsArr){
-            let movieIndex
-            for (let movie of moviesData){
-                if (movie.imdbId === id){
-                    movieIndex = moviesData.indexOf(movie)
-                }
-            }
-            watchListMoviesHtml.push(moviesHtml[movieIndex])
+            watchListMoviesHtml.push(
+                savedMoviesHtml[savedWatchlistIdsArr.indexOf(id)]
+            )
         }
-        const emptyWatchlistEl = document.querySelector(".empty-watchlist")
-        emptyWatchlistEl.style.display="none"
+        checkWatchlistIsEmpty()
         watchListEl.innerHTML = watchListMoviesHtml.join('')
+        savedWatchlistIdsArr.forEach(function(id){
+            changeWatchlistBtnImg(id)
+        })
+    }else{
+        window.location.reload()
+        checkWatchlistIsEmpty()
     }
 }
 
@@ -32,4 +51,8 @@ function getMoviesHtml(){
 
 function getMoviesData(){
     return JSON.parse(localStorage.getItem("moviesData"))
+}
+
+function getMoviesIds(){
+    return localStorage.getItem('watchlist-movie-ids').split(',')
 }

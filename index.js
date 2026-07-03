@@ -1,45 +1,81 @@
+
 const renderMovies = document.getElementById('render-movies')
 const moviesData = []
 const moviesHtml = []
 let savedMoviesData = getSavedMoviesData()
 let savedMoviesHtml = getSavedMoviesHtml()
 let watchListMoviesIds = getSavedWatchlistIds()
+console.log(savedMoviesData)
 
 // localStorage.clear()
 
 document.addEventListener('click',function(e){
-    if(e.target.classList.contains('addedToWatchlist')){
-        removeFromWatchlist(e.target.dataset.id)
-    }
-
     if (e.target.classList.contains('addToWatchlist')){
         pushDistinctWatchlistMovieIds(e.target.dataset.id)
         changeWatchlistBtnImg(e.target.dataset.id)
+    }else if(e.target.classList.contains('addedToWatchlist')){
+        removeFromWatchlist(e.target.dataset.id)
     }
     if(e.target.id==='searchBtn'){
         getMovieSearch()
     }
 })
 
-function removeFromWatchlist(id){
+// function checkWatchlistIsEmpty(){
+//     if (!watchListMoviesIds.length){
+//         emptyWatchlistEl.style.display = "none"
+//     }
+// }
+
+function addAddToWatchlistClass(imgDom,btnDom){
+    imgDom.classList.add("addToWatchlist")
+    btnDom.classList.add("addToWatchlist")
+}
+
+function removeAddToWatchlistClass(imgDom,btnDom){
+    imgDom.classList.remove("addToWatchlist")
+    btnDom.classList.remove("addToWatchlist")
+}
+
+function addAddedToWatchlistClass(imgDom,btnDom){
+    imgDom.classList.add("addedToWatchlist")
+    btnDom.classList.add("addedToWatchlist")
+}
+
+function removeAddedToWatchlistClass(imgDom,btnDom){
+    imgDom.classList.remove("addedToWatchlist")
+    btnDom.classList.remove("addedToWatchlist")
+}
+
+function getWatchlistIconDom(id){
+    return document.getElementById(`img-${id}`)
+}
+
+function getWatchlistBtnDom(id){
+    return document.getElementById(`btn-${id}`)
+}
+
+export function removeFromWatchlist(id){
     watchListMoviesIds = watchListMoviesIds.filter(
         (watchlistId)=>{
-            console.log("removed the id")
             watchlistId!=id
         }
     )
     let removeMovieIndex
-    console.log(savedMoviesData) 
     savedMoviesData = savedMoviesData.filter(
         (movie) => {
-            console.log(movie)
             removeMovieIndex = savedMoviesData.indexOf(movie)
-            console.log(`removed the id ${id}`)
             return movie.imdbId!=id
         }
     )
-    console.log(savedMoviesData)
-    console.log(removeMovieIndex)
+    savedMoviesHtml = savedMoviesHtml.filter(
+        (element,index) => {
+            return index!=removeMovieIndex
+        }
+    )
+    changeWatchlistBtnImg(id)
+    storeMovieIdLocally()
+    storeMoviesArraysLocally()
 }
 
 function isPresentInWatchlist(id){
@@ -51,24 +87,27 @@ function isPresentInWatchlist(id){
 
 function pushDistinctWatchlistMovieIds(id){
     console.log(id)
+    console.log(watchListMoviesIds.includes(id))
     if(!watchListMoviesIds.includes(id)){
+        console.log("pushing into watchlist ids")
         watchListMoviesIds.push(id)
+        console.log("calling push function")
         pushSelectedMovieDetails(id)
-        storeMovieIdLocally(id)
+        storeMovieIdLocally()
     }
 }
 
-// function addClassToWatchlistBtnImg(id){
-//     if (!isPresentInWatchlist(id)){
-//         imgEl.classList.toggle("addedToWatchlist")
-//     }
-// }
-
-function changeWatchlistBtnImg(id){
+export function changeWatchlistBtnImg(id){
+    const imgEl = getWatchlistIconDom(id)
+    const btnEl = getWatchlistBtnDom(id)
     if (isPresentInWatchlist(id)){
-        const imgEl = document.getElementById(`img-${id}`)
-        imgEl.classList.add("addedToWatchlist")
+        removeAddToWatchlistClass(imgEl,btnEl)
+        addAddedToWatchlistClass(imgEl,btnEl)
         imgEl.src = "images/remove-icon.png"
+    }else{
+        addAddToWatchlistClass(imgEl,btnEl)
+        removeAddedToWatchlistClass(imgEl,btnEl)
+        imgEl.src = "images/add-icon.png"
     }
 }
 
@@ -81,6 +120,7 @@ function pushSelectedMovieDetails(movieId){
             movieIndex = moviesData.indexOf(movie)
         }
     }
+    console.log(`pushing movie with index`)
     savedMoviesHtml.push(moviesHtml[movieIndex])
     storeMoviesArraysLocally()
 }
@@ -97,6 +137,7 @@ function getSavedMoviesHtml(){
 function getSavedMoviesData(){
     console.log("inside the saved movies data fn")
     if (localStorage.getItem("moviesData")){
+        console.log(JSON.parse(localStorage.getItem("moviesData")))
         return JSON.parse(localStorage.getItem("moviesData"))
     }else{
         return []
@@ -112,7 +153,7 @@ function getSavedWatchlistIds(){
     }
 }
 
-function storeMovieIdLocally(id){
+function storeMovieIdLocally(){
     console.log(watchListMoviesIds)
     localStorage.setItem("watchlist-movie-ids",watchListMoviesIds)
 }
@@ -181,6 +222,7 @@ async function renderMovieDetails(movie){
     const searchpageBackgroundEl = document.getElementById('searchpage-background')
     searchpageBackgroundEl.style.display = 'none'
     renderMovies.innerHTML+= movieHtml
+    changeWatchlistBtnImg(data.imdbID)
     moviesData.push({
         poster : data.Poster,
         title : data.Title,
