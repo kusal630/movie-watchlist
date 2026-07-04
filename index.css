@@ -107,11 +107,12 @@ header{
 }
 
 #render-movies{
-    display:block;
+    display:none;
     margin:30px 0px 0px 0px;
     width:462px;
     text-align:center;
     padding:20px;
+    /* background:red; */
 }
 
 .separate-movie{
@@ -206,6 +207,49 @@ header{
     -webkit-line-clamp: 3;
     text-align:justify;
     line-height:20px;
+}
+
+/* search fail message */
+
+.search-fail-container{ 
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    /* background:red; */
+    height:571px;
+}
+
+#search-fail-message{
+    color:#787878;
+    font-weight:bold;
+    font-size:1.125rem;
+    line-height:20px;
+    width:321px;
+    /* display:flex; */
+    /* align-items:center; */
+    /* justify-content:center; */
+    margin:0px;
+    /* height:571px; */
+    /* background:blue; */
+}
+
+/* read more btn */
+
+.movie-plot-read-more-btn{
+    display:flex;
+}
+
+.read-more-btn{
+    background:none;
+    border:none;
+    /* display:inline; */
+    color:#FFFFFF;
+    padding:0px;
+    font-size:0.6rem;
+    font-weight:bold;
+    /* line-height:20px; */
+    height:20px;
+    margin-top:auto;
 }
 
 /* watchlist styles */

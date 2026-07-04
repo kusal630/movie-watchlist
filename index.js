@@ -1,9 +1,9 @@
 
 const renderMovies = document.getElementById('render-movies')
+const searchpageBackgroundEl = document.getElementById('searchpage-background')
+
 const moviesData = []
-const moviesHtml = []
 let savedMoviesData = getSavedMoviesData()
-let savedMoviesHtml = getSavedMoviesHtml()
 let watchListMoviesIds = getSavedWatchlistIds()
 console.log(savedMoviesData)
 
@@ -14,35 +14,33 @@ document.addEventListener('click',function(e){
         pushDistinctWatchlistMovieIds(e.target.dataset.id)
         changeWatchlistBtnImg(e.target.dataset.id)
     }else if(e.target.classList.contains('addedToWatchlist')){
+        console.log("running the remove function")
         removeFromWatchlist(e.target.dataset.id)
     }
     if(e.target.id==='searchBtn'){
         getMovieSearch()
     }
+    if(e.target.classList.contains("read-more-btn")){
+        showFullMoviePlot()
+    }
 })
 
-// function checkWatchlistIsEmpty(){
-//     if (!watchListMoviesIds.length){
-//         emptyWatchlistEl.style.display = "none"
-//     }
-// }
-
-function addAddToWatchlistClass(imgDom,btnDom){
+export function addAddToWatchlistClass(imgDom,btnDom){
     imgDom.classList.add("addToWatchlist")
     btnDom.classList.add("addToWatchlist")
 }
 
-function removeAddToWatchlistClass(imgDom,btnDom){
+export function removeAddToWatchlistClass(imgDom,btnDom){
     imgDom.classList.remove("addToWatchlist")
     btnDom.classList.remove("addToWatchlist")
 }
 
-function addAddedToWatchlistClass(imgDom,btnDom){
+export function addAddedToWatchlistClass(imgDom,btnDom){
     imgDom.classList.add("addedToWatchlist")
     btnDom.classList.add("addedToWatchlist")
 }
 
-function removeAddedToWatchlistClass(imgDom,btnDom){
+export function removeAddedToWatchlistClass(imgDom,btnDom){
     imgDom.classList.remove("addedToWatchlist")
     btnDom.classList.remove("addedToWatchlist")
 }
@@ -58,7 +56,7 @@ function getWatchlistBtnDom(id){
 export function removeFromWatchlist(id){
     watchListMoviesIds = watchListMoviesIds.filter(
         (watchlistId)=>{
-            watchlistId!=id
+            return watchlistId!=id
         }
     )
     let removeMovieIndex
@@ -68,13 +66,8 @@ export function removeFromWatchlist(id){
             return movie.imdbId!=id
         }
     )
-    savedMoviesHtml = savedMoviesHtml.filter(
-        (element,index) => {
-            return index!=removeMovieIndex
-        }
-    )
     changeWatchlistBtnImg(id)
-    storeMovieIdLocally()
+    // storeMovieArraysLocally()
     storeMoviesArraysLocally()
 }
 
@@ -93,7 +86,7 @@ function pushDistinctWatchlistMovieIds(id){
         watchListMoviesIds.push(id)
         console.log("calling push function")
         pushSelectedMovieDetails(id)
-        storeMovieIdLocally()
+        storeMoviesArraysLocally()
     }
 }
 
@@ -121,17 +114,7 @@ function pushSelectedMovieDetails(movieId){
         }
     }
     console.log(`pushing movie with index`)
-    savedMoviesHtml.push(moviesHtml[movieIndex])
     storeMoviesArraysLocally()
-}
-
-function getSavedMoviesHtml(){
-    console.log("inside the saved movies html fn")
-    if (localStorage.getItem("moviesHtml")){
-        return JSON.parse(localStorage.getItem("moviesHtml"))
-    }else{
-        return []
-    }
 }
 
 function getSavedMoviesData(){
@@ -153,27 +136,49 @@ function getSavedWatchlistIds(){
     }
 }
 
-function storeMovieIdLocally(){
-    console.log(watchListMoviesIds)
-    localStorage.setItem("watchlist-movie-ids",watchListMoviesIds)
-}
+// function storeMovieArraysLocally(){
+//     console.log(watchListMoviesIds)
+//     localStorage.setItem("moviesData",JSON.stringify(savedMoviesData))
+//     localStorage.setItem("watchlist-movie-ids",watchListMoviesIds)
+// }
 
 async function getMovieSearch(){
     const searchInpt = document.getElementById('search-input')
+    renderMovies.innerHTML = ''
     const response = await fetch(`http://www.omdbapi.com/?apikey=621c5661&s=${searchInpt.value}`)
     const data = await response.json()
-    const moviesHtml = []
+    console.log(Boolean(data.Search))
     searchInpt.value=''
-    renderMovies.innerHTML = ''
-    const movies = []
-    for (let movie of data.Search){
-        await renderMovieDetails(movie)
+    if (data.Search){
+        const moviesHtml = []
+        const movies = []
+        for (let movie of data.Search){
+            await renderMovieDetails(movie)
+        }
+    }else{
+        console.log("inside else of search function")
+        const emptySearchHtml = `
+        <div class="search-fail-container">
+            <p id='search-fail-message'>
+                Unable to find what you're looking for.
+                Please try another search.
+            </p>
+        </div>`
+        chnageDomStylesHtml(emptySearchHtml)
+        // searchpageBackgroundEl.style.display = "none"
+        // renderMovies.innerHTML=`
+        // <div class="search-fail-container">
+        //     <p id='search-fail-message'>
+        //         Unable to find what you're looking for.
+        //         Please try another search.
+        //     </p>
+        // </div>`
     }
 }
 
 function storeMoviesArraysLocally(){
+    localStorage.setItem("watchlist-movie-ids",watchListMoviesIds)
     localStorage.setItem("moviesData",JSON.stringify(savedMoviesData))
-    localStorage.setItem("moviesHtml",JSON.stringify(savedMoviesHtml))
 }
 
 async function renderMovieDetails(movie){
@@ -215,13 +220,17 @@ async function renderMovieDetails(movie){
                         Watchlist</button>
                     </div>
                 </div>
-                <p class='movie-plot'>${data.Plot}</p>
+                <div class="movie-plot-read-more-btn">
+                    <p class='movie-plot'>${data.Plot}</p>
+                    <button class='read-more-btn'>Read More</button>
+                </div>
             </div>
         </div>
     ` 
-    const searchpageBackgroundEl = document.getElementById('searchpage-background')
-    searchpageBackgroundEl.style.display = 'none'
-    renderMovies.innerHTML+= movieHtml
+    // searchpageBackgroundEl.style.display = 'none'
+    // renderMovies.style.display = "block"
+    // renderMovies.innerHTML+= movieHtml
+    chnageDomStylesHtml(movieHtml)
     changeWatchlistBtnImg(data.imdbID)
     moviesData.push({
         poster : data.Poster,
@@ -230,7 +239,13 @@ async function renderMovieDetails(movie){
         runtime : data.Runtime,
         addedToWatchlist : false,
         plot : data.Plot,
-        imdbId : data.imdbID
+        imdbId : data.imdbID,
+        html : movieHtml
     })
-    moviesHtml.push(movieHtml)
+}
+
+function chnageDomStylesHtml(html){
+    searchpageBackgroundEl.style.display = 'none'
+    renderMovies.style.display = "block"
+    renderMovies.innerHTML+= html
 }

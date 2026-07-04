@@ -1,58 +1,130 @@
-import {changeWatchlistBtnImg} from "./index.js"
 import { removeFromWatchlist } from "./index.js"
+import { changeWatchlistBtnImg } from "./index.js"
 
-// document.addEventListener("click",function(e){
-//     if (e.target.classList.contains("addedToWatchlist")){
-//         window.location.reload()
-//     }
-// })
-
-
-const savedMoviesData = getMoviesData()
-const savedMoviesHtml = getMoviesHtml()
-const savedWatchlistIdsArr=getMoviesData()
+let savedMoviesData = getMoviesData()
+let savedMoviesHtml = getMoviesHtml()
+let savedWatchlistIdsArr=getMoviesIds()
 
 const emptyWatchlistEl = document.querySelector("#empty-watchlist")
 
+
+document.addEventListener("click",function(e){
+    console.log(e.target)
+    if (e.target.classList.contains("addToWatchlist")){
+        console.log("inside the event listener")
+        removeFromWatchlist(e.target.dataset.id)
+        // removeFromWatchlist(e.target.dataset.id)
+        window.location.reload()
+    }
+})
+
+// function changeLocalStorage(){
+//     localStorage.setItem("moviesData",JSON.stringify(savedMoviesData))
+//     localStorage.setItem("watchlist-movie-ids",savedWatchlistIdsArr)
+// }
+
+// function removeMovieFromWatchlist(id){
+//     console.log(savedWatchlistIdsArr)
+//     savedWatchlistIdsArr = savedWatchlistIdsArr.filter(
+//         (watchlistId)=>{
+//             console.log(watchlistId)
+//             return watchlistId!=id
+//         }
+//     )
+//     console.log(savedWatchlistIdsArr)
+//     let removeMovieIndex
+//     console.log(savedMoviesData)
+//     savedMoviesData = savedMoviesData.filter(
+//         (movie) => {
+//             removeMovieIndex = savedMoviesData.indexOf(movie)
+//             return movie.imdbId!=id
+//         }
+//     )
+//     console.log(savedMoviesData)
+//     savedMoviesHtml = getMoviesHtml()
+//     console.log(savedMoviesHtml)
+//     changeLocalStorage()
+// }
+
+// function changeWatchlistBtnIcon(imgDom){
+//     imgDom.src = "images/remove-icon.png"
+// }
+
 renderToWatchlist()
 
+// function changeWatchlistClass(id){
+//     console.log(id)
+//     const imgEl = document.getElementById(`img-${id}`)
+//     const btnEl = document.getElementById(`btn-${id}`)
+//     // imgEl.classList.remove("addToWatchlist")
+//     // btnEl.classList.remove("addToWatchlist")
+//     // imgEl.classList.add("addedToWatchlist")
+//     // btnEl.classList.add("addedToWatchlist")
+//     changeWatchlistBtnIcon(imgEl)
+// }
+
 function checkWatchlistIsEmpty(){
-    if (savedWatchlistIdsArr.length){
+    if (savedMoviesHtml.length){
         emptyWatchlistEl.style.display="none"
     }else{
+        console.log("inside else of empty watchlist")
         emptyWatchlistEl.style.display="flex"
     }   
 }
 
 function renderToWatchlist(){
     const watchListEl = document.getElementById('watchlist-movies')
-    if (localStorage.getItem('watchlist-movie-ids'))
+    console.log(Boolean(localStorage.getItem('watchlist-movie-ids')))
+    if (savedMoviesHtml)
     {
-        const watchListMoviesHtml = []
-        for (let id of savedWatchlistIdsArr){
-            watchListMoviesHtml.push(
-                savedMoviesHtml[savedWatchlistIdsArr.indexOf(id)]
-            )
-        }
+        // watchListMoviesHtml.push(savedMoviesHtml.join(''))
         checkWatchlistIsEmpty()
-        watchListEl.innerHTML = watchListMoviesHtml.join('')
+        watchListEl.innerHTML = savedMoviesHtml.join("")
+        // changeWatchlistClass()
+
+        // for (let id of savedWatchlistIdsArr){
+        //     watchListMoviesHtml.push(
+        //         savedMoviesHtml[savedWatchlistIdsArr.indexOf(id)]
+        //     )
+        // }
+        // // checkWatchlistIsEmpty()
+        // console.log(savedWatchlistIdsArr)
         savedWatchlistIdsArr.forEach(function(id){
-            changeWatchlistBtnImg(id)
+        console.log("changing class")
+        changeWatchlistBtnImg(id)
         })
     }else{
-        window.location.reload()
+        console.log("inside the else of render function")
         checkWatchlistIsEmpty()
+        // watchListEl.innerHTML = null
     }
+
 }
 
 function getMoviesHtml(){
-    return JSON.parse(localStorage.getItem("moviesHtml"))
+    if (savedMoviesData){
+        const moviesHtml = []
+        savedMoviesData.forEach(function(movie){
+            moviesHtml.push(movie.html)
+        })
+        return moviesHtml
+    }else{
+        return []
+    }
 }
 
 function getMoviesData(){
-    return JSON.parse(localStorage.getItem("moviesData"))
+    if (localStorage.getItem("moviesData")){
+        return JSON.parse(localStorage.getItem("moviesData"))
+    }else{
+        return []
+    }
 }
 
 function getMoviesIds(){
-    return localStorage.getItem('watchlist-movie-ids').split(',')
+    if (localStorage.getItem('watchlist-movie-ids')){
+        return localStorage.getItem('watchlist-movie-ids').split(',')
+    }else{
+        return []
+    }
 }
