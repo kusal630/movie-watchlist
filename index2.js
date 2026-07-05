@@ -1,5 +1,10 @@
-import { removeFromWatchlist } from "./index.js"
-import { changeWatchlistBtnImg } from "./index.js"
+// import { removeFromWatchlist } from "./index.js"
+// import { changeWatchlistBtnImg } from "./index.js"
+import {
+    removeFromWatchlist,
+    changeWatchlistBtnImg,
+    showFullMoviePlot
+} from "./index.js"
 
 let savedMoviesData = getMoviesData()
 let savedMoviesHtml = getMoviesHtml()
@@ -15,6 +20,10 @@ document.addEventListener("click",function(e){
         removeFromWatchlist(e.target.dataset.id)
         // removeFromWatchlist(e.target.dataset.id)
         window.location.reload()
+    }
+    if(e.target.classList.contains("read-more-btn")){
+        console.log(e.target)
+        // showFullMoviePlot(e.target.dataset.id)
     }
 })
 
@@ -54,13 +63,16 @@ renderToWatchlist()
 
 // function changeWatchlistClass(id){
 //     console.log(id)
-//     const imgEl = document.getElementById(`img-${id}`)
-//     const btnEl = document.getElementById(`btn-${id}`)
+
+//     const imgEl = getWatchlistIconDom(id)
+//     const btnEl = getWatchlistBtnDom(id)
+//     removeAddToWatchlistClass(imgEl,btnEl)
+//     addAddedToWatchlistClass(imgEl,btnEl)
 //     // imgEl.classList.remove("addToWatchlist")
 //     // btnEl.classList.remove("addToWatchlist")
 //     // imgEl.classList.add("addedToWatchlist")
 //     // btnEl.classList.add("addedToWatchlist")
-//     changeWatchlistBtnIcon(imgEl)
+//     // changeWatchlistBtnImg(id)
 // }
 
 function checkWatchlistIsEmpty(){
@@ -90,8 +102,8 @@ function renderToWatchlist(){
         // // checkWatchlistIsEmpty()
         // console.log(savedWatchlistIdsArr)
         savedWatchlistIdsArr.forEach(function(id){
-        console.log("changing class")
-        changeWatchlistBtnImg(id)
+            console.log("changing class")
+            changeWatchlistBtnImg(id) 
         })
     }else{
         console.log("inside the else of render function")

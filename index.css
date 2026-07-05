@@ -242,14 +242,16 @@ header{
 .read-more-btn{
     background:none;
     border:none;
-    /* display:inline; */
+    display:inline;
     color:#FFFFFF;
     padding:0px;
     font-size:0.6rem;
     font-weight:bold;
     /* line-height:20px; */
+    width:auto;
     height:20px;
     margin-top:auto;
+    cursor:pointer;
 }
 
 /* watchlist styles */

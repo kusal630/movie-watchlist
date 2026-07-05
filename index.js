@@ -21,9 +21,17 @@ document.addEventListener('click',function(e){
         getMovieSearch()
     }
     if(e.target.classList.contains("read-more-btn")){
-        showFullMoviePlot()
+        console.log(e.target)
+        showFullMoviePlot(e.target.dataset.id)
     }
 })
+
+export function showFullMoviePlot(id){
+    console.log(id)
+    const moviePlotEl = document.getElementById(`movie-plot-${id}`)
+    document.getElementById(`read-more-${id}`).style.display="none"
+    moviePlotEl.style.display="block"
+}
 
 export function addAddToWatchlistClass(imgDom,btnDom){
     imgDom.classList.add("addToWatchlist")
@@ -45,11 +53,11 @@ export function removeAddedToWatchlistClass(imgDom,btnDom){
     btnDom.classList.remove("addedToWatchlist")
 }
 
-function getWatchlistIconDom(id){
+export function getWatchlistIconDom(id){
     return document.getElementById(`img-${id}`)
 }
 
-function getWatchlistBtnDom(id){
+export function getWatchlistBtnDom(id){
     return document.getElementById(`btn-${id}`)
 }
 
@@ -67,7 +75,6 @@ export function removeFromWatchlist(id){
         }
     )
     changeWatchlistBtnImg(id)
-    // storeMovieArraysLocally()
     storeMoviesArraysLocally()
 }
 
@@ -108,9 +115,11 @@ function pushSelectedMovieDetails(movieId){
     console.log("inside push function")
     let movieIndex
     for (let movie of moviesData){
-        if (movie.imdbId===movieId){
-            savedMoviesData.push(movie)
-            movieIndex = moviesData.indexOf(movie)
+        if (!savedMoviesData.includes(movie)){
+            if (movie.imdbId===movieId){
+                savedMoviesData.push(movie)
+                movieIndex = moviesData.indexOf(movie)
+            }
         }
     }
     console.log(`pushing movie with index`)
@@ -136,12 +145,6 @@ function getSavedWatchlistIds(){
     }
 }
 
-// function storeMovieArraysLocally(){
-//     console.log(watchListMoviesIds)
-//     localStorage.setItem("moviesData",JSON.stringify(savedMoviesData))
-//     localStorage.setItem("watchlist-movie-ids",watchListMoviesIds)
-// }
-
 async function getMovieSearch(){
     const searchInpt = document.getElementById('search-input')
     renderMovies.innerHTML = ''
@@ -164,15 +167,7 @@ async function getMovieSearch(){
                 Please try another search.
             </p>
         </div>`
-        chnageDomStylesHtml(emptySearchHtml)
-        // searchpageBackgroundEl.style.display = "none"
-        // renderMovies.innerHTML=`
-        // <div class="search-fail-container">
-        //     <p id='search-fail-message'>
-        //         Unable to find what you're looking for.
-        //         Please try another search.
-        //     </p>
-        // </div>`
+        changeDomStylesHtml(emptySearchHtml)
     }
 }
 
@@ -221,30 +216,45 @@ async function renderMovieDetails(movie){
                     </div>
                 </div>
                 <div class="movie-plot-read-more-btn">
-                    <p class='movie-plot'>${data.Plot}</p>
-                    <button class='read-more-btn'>Read More</button>
+                    <p class='movie-plot' id='movie-plot-${data.imdbID}'>${data.Plot}</p>
+                    <button class='read-more-btn'
+                     id="read-more-${data.imdbID}"
+                     data-id=${data.imdbID}>Read More</button>
                 </div>
             </div>
         </div>
     ` 
-    // searchpageBackgroundEl.style.display = 'none'
-    // renderMovies.style.display = "block"
-    // renderMovies.innerHTML+= movieHtml
-    chnageDomStylesHtml(movieHtml)
-    changeWatchlistBtnImg(data.imdbID)
-    moviesData.push({
-        poster : data.Poster,
-        title : data.Title,
-        genre : data.Genre,
-        runtime : data.Runtime,
-        addedToWatchlist : false,
-        plot : data.Plot,
-        imdbId : data.imdbID,
-        html : movieHtml
-    })
+    if(!isItDuplicateMovie(data.imdbID)){
+        console.log(!isItDuplicateMovie(data.imdbID))
+        console.log(`pushing ${data.Title}`)
+        moviesData.push({
+            poster : data.Poster,
+            title : data.Title,
+            genre : data.Genre,
+            runtime : data.Runtime,
+            addedToWatchlist : false,
+            plot : data.Plot,
+            imdbId : data.imdbID,
+            html : movieHtml
+        })
+        changeDomStylesHtml(movieHtml)
+        changeWatchlistBtnImg(data.imdbID)
+    }
 }
 
-function chnageDomStylesHtml(html){
+function isItDuplicateMovie(id){
+    for (let movie of moviesData){
+        console.log(movie.imdbId,id)
+        if (movie.imdbId===id){
+            console.log(`checking for ${movie}`)
+            console.log(movie.imdbId)
+            return true
+        }
+    }
+    return false
+}
+
+function changeDomStylesHtml(html){
     searchpageBackgroundEl.style.display = 'none'
     renderMovies.style.display = "block"
     renderMovies.innerHTML+= html
